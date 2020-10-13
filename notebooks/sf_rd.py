@@ -10,7 +10,9 @@ from collections import Counter
 import numpy as np
 import random
 import csv
-# import readr
+from pandarallel import pandarallel
+
+pandarallel.initialize()
 
 processed_dir = '/home/libbyh/belfer/data/processed/'
 browser_data_dir = '/home/libbyh/belfer-dfrbrowser/data/'
@@ -35,7 +37,7 @@ df.head()
 
 
 # optionally sample for testing
-df = df.sample(frac=0.25, replace=False, random_state=1)
+df = df.sample(n=25000, replace=False, random_state=1)
 
 
 # In[4]:
@@ -52,7 +54,7 @@ df.drop(df[df.post_text == "[removed]"].index)
 # df.post_text.replace({r'[^ -\x7F]+':''}, regex=True, inplace=True) #clean text
 # df['post_text'].replace('', np.nan, inplace=True)
 # df = df.dropna(subset=['post_text'], inplace=True) #drop empty post_text
-print(df.head(10))
+print(df.head())
 
 # df.shape[0] #778410
 
@@ -92,17 +94,18 @@ meta.to_csv(browser_data_dir + 'sf_rd_sample_meta.csv',
 # generate word frequency files for each post
 i = 1
 
-for index, row in df.iterrows():
-    if i > len(df):
-       break
-    else:
-        freqs = row['post_text'].split(expand=True).stack().value_counts().to_string()
-        filename = browser_data_dir + 'sf_rd_sample_frequencies/' + str(i) + 'tsv'
-        print(filename)
-        with open(filename, 'w') as f:
-            f.write(freqs)
-        i+=1
+freqs = meta['title'].str.split().parallel_apply(pd.value_counts)
+print(freqs.head())
 
+for index, row in freqs.iterrows():
+    if i > len(df):
+        break
+    else:
+        filename = browser_data_dir + 'freqs/' + str(index) + '.tsv'
+        row.dropna(inplace=True)
+        with open(filename, 'w') as f:
+            f.write(row.to_string())
+        i+=1
 
 
 
