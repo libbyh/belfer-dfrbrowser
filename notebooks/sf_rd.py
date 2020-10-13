@@ -96,17 +96,17 @@ i = 1
 
 freqs = meta['title'].str.split().parallel_apply(pd.value_counts)
 print(freqs.head())
-
+print(freqs.dtypes)
+freqs = freqs.fillna(0)
+freqs = freqs.astype('int8')
+print(freqs.head())
+print(freqs.dtypes)
 for index, row in freqs.iterrows():
     if i > len(df):
         break
     else:
-        filename = browser_data_dir + 'freqs/' + str(index) + '.tsv'
+        filename = browser_data_dir + 'freqs/' + str(index + 1) + '.tsv'
         row.dropna(inplace=True)
-        with open(filename, 'w') as f:
-            f.write(row.to_string())
-        i+=1
-
-
-
-
+    with open(filename, 'w') as f:
+        f.write(row.to_csv(sep='\t'))
+    i+=1
