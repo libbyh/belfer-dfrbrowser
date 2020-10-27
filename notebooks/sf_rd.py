@@ -37,7 +37,7 @@ df.head()
 
 
 # optionally sample for testing
-df = df.sample(n=25000, replace=False, random_state=1)
+df = df.sample(n=25, replace=False, random_state=1)
 
 
 # In[4]:
