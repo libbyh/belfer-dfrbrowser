@@ -53,7 +53,7 @@ df.drop(df[df.post_text == "[deleted]"].index)
 df.drop(df[df.post_text == "[removed]"].index)
 # df.post_text.replace({r'[^ -\x7F]+':''}, regex=True, inplace=True) #clean text
 # df['post_text'].replace('', np.nan, inplace=True)
-# df = df.dropna(subset=['post_text'], inplace=True) #drop empty post_text
+df = df.dropna(subset=['post_text'], inplace=True) #drop empty post_text
 print(df.head())
 
 # df.shape[0] #778410
@@ -92,7 +92,7 @@ meta.to_csv(browser_data_dir + 'sf_rd_sample_meta.csv',
 
 
 # generate word frequency files for each post
-i = 1
+i = 0
 
 freqs = meta['title'].str.split().parallel_apply(pd.value_counts)
 print(freqs.head())
@@ -105,7 +105,7 @@ for index, row in freqs.iterrows():
     if i > len(df):
         break
     else:
-        filename = browser_data_dir + 'freqs/' + str(index + 1) + '.tsv'
+        filename = browser_data_dir + 'frequency_files/' + str(index + 1) + '.tsv'
         row.dropna(inplace=True)
     with open(filename, 'w') as f:
         f.write(row.to_csv(sep='\t'))
